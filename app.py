@@ -3,7 +3,7 @@ import streamlit_authenticator as stauth
 import yaml
 from yaml.loader import SafeLoader
 
-# Load config from Streamlit secrets if available, else from file
+# Load config from Streamlit secrets if available, else from local file
 if "config" in st.secrets:
     config = yaml.load(st.secrets["config"], Loader=SafeLoader)
 else:
@@ -43,14 +43,16 @@ if auth_option == "Create Account":
                 "password": hashed_pw
             }
 
-            # Save to local file only — cloud secrets can’t be written
+            # Save to local file (note: cloud version won't persist)
             with open("config.yaml", "w") as file:
                 yaml.dump(config, file)
 
             st.success("✅ Account created! Please go to Login.")
+            st.info("Note: This account won't persist on cloud unless connected to a real database.")
 
 elif auth_option == "Login":
-    name, auth_status, username = authenticator.login("Login", "main")
+    st.subheader("🔐 Login to FinSight")
+    name, auth_status, username = authenticator.login(location="sidebar")
 
     if auth_status:
         authenticator.logout("Logout", "sidebar")
@@ -61,7 +63,7 @@ elif auth_option == "Login":
             "<div style='text-align: center; color: grey; font-size: 16px;'>Created by <b>ABIODUN ADEBAYO</b></div>",
             unsafe_allow_html=True
         )
-        # 🔽 Add your dashboard content here
+        # 🔽 Add your main dashboard content here
 
     elif auth_status is False:
         st.error("Incorrect username or password.")
