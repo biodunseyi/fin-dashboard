@@ -6,3 +6,5 @@ yfinance
 scipy
 textblob
 requests
+streamlit-authenticator
+PyYAML
