@@ -3,8 +3,16 @@ import streamlit_authenticator as stauth
 import yaml
 from yaml.loader import SafeLoader
 
-# Load user credentials securely from st.secrets
-config = yaml.load(st.secrets["config"], Loader=SafeLoader)
+# Load config from Streamlit secrets if available, else from file
+if "config" in st.secrets:
+    config = yaml.load(st.secrets["config"], Loader=SafeLoader)
+else:
+    try:
+        with open("config.yaml") as file:
+            config = yaml.load(file, Loader=SafeLoader)
+    except FileNotFoundError:
+        st.error("⚠️ No config.yaml file or secret found.")
+        st.stop()
 
 # Authenticate
 authenticator = stauth.Authenticate(
@@ -34,8 +42,12 @@ if auth_option == "Create Account":
                 "name": new_username,
                 "password": hashed_pw
             }
-            st.success("Account created! Please go to Login to access your dashboard.")
-            st.info("Note: This account will not persist after the app restarts unless stored in a database.")
+
+            # Save to local file only — cloud secrets can’t be written
+            with open("config.yaml", "w") as file:
+                yaml.dump(config, file)
+
+            st.success("✅ Account created! Please go to Login.")
 
 elif auth_option == "Login":
     name, auth_status, username = authenticator.login("Login", "main")
@@ -49,9 +61,9 @@ elif auth_option == "Login":
             "<div style='text-align: center; color: grey; font-size: 16px;'>Created by <b>ABIODUN ADEBAYO</b></div>",
             unsafe_allow_html=True
         )
-        # 🚀 Your dashboard content goes here
+        # 🔽 Add your dashboard content here
 
     elif auth_status is False:
-        st.error("Incorrect username or password")
+        st.error("Incorrect username or password.")
     elif auth_status is None:
-        st.warning("Please enter your credentials")
+        st.warning("Please enter your credentials.")
