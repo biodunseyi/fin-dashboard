@@ -19,5 +19,6 @@ st.markdown(
 
 st.title("📊 FinSight Pro - Real-Time Investment Dashboard")
 st.subheader("Welcome to the future of portfolio intelligence.")
+st.markdown("<div style='text-align: center; color: grey; font-size: 16px;'>Created by <b>ABIODUN ADEBAYO</b></div>", unsafe_allow_html=True)
 st.markdown("---")
 st.markdown("Use the sidebar to navigate between tools.")
