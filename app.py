@@ -2,15 +2,9 @@ import streamlit as st
 import streamlit_authenticator as stauth
 import yaml
 from yaml.loader import SafeLoader
-import os
 
-# Load user credentials from config.yaml
-if not os.path.exists("config.yaml"):
-    st.error("Missing config.yaml")
-    st.stop()
-
-with open("config.yaml") as file:
-    config = yaml.load(file, Loader=SafeLoader)
+# Load user credentials securely from st.secrets
+config = yaml.load(st.secrets["config"], Loader=SafeLoader)
 
 # Authenticate
 authenticator = stauth.Authenticate(
@@ -40,12 +34,8 @@ if auth_option == "Create Account":
                 "name": new_username,
                 "password": hashed_pw
             }
-
-            # Save to config.yaml
-            with open("config.yaml", "w") as file:
-                yaml.dump(config, file)
-
             st.success("Account created! Please go to Login to access your dashboard.")
+            st.info("Note: This account will not persist after the app restarts unless stored in a database.")
 
 elif auth_option == "Login":
     name, auth_status, username = authenticator.login("Login", "main")
@@ -55,8 +45,11 @@ elif auth_option == "Login":
         st.sidebar.success(f"Welcome, {name} 👋")
         st.title("📊 FinSight Pro - Real-Time Investment Dashboard")
         st.subheader("Welcome to the future of portfolio intelligence.")
-        st.markdown("<div style='text-align: center; color: grey; font-size: 16px;'>Created by <b>ABIODUN ADEBAYO</b></div>", unsafe_allow_html=True)
-        # 🚀 Add your dashboard here
+        st.markdown(
+            "<div style='text-align: center; color: grey; font-size: 16px;'>Created by <b>ABIODUN ADEBAYO</b></div>",
+            unsafe_allow_html=True
+        )
+        # 🚀 Your dashboard content goes here
 
     elif auth_status is False:
         st.error("Incorrect username or password")
