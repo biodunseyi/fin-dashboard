@@ -1,5 +1,6 @@
 [theme]
 base="dark"
-primaryColor="#00BFFF"
-secondaryBackgroundColor="#1E1E1E"
+primaryColor="#FFD700"  # gold
+backgroundColor="#0D1117"
+secondaryBackgroundColor="#161B22"
 textColor="#FFFFFF"
