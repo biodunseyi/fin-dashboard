@@ -1,70 +1,64 @@
 import streamlit as st
-import streamlit_authenticator as stauth
-import yaml
-from yaml.loader import SafeLoader
+import supabase
+import bcrypt
 import os
 
-# Load user credentials from config.yaml
-if not os.path.exists("config.yaml"):
-    st.error("Missing config.yaml")
-    st.stop()
+# Load from Streamlit Secrets
+SUPABASE_URL = st.secrets["SUPABASE_URL"]
+SUPABASE_KEY = st.secrets["SUPABASE_KEY"]
 
-with open("config.yaml") as file:
-    config = yaml.load(file, Loader=SafeLoader)
+# Initialize Supabase client
+supabase_client = supabase.create_client(SUPABASE_URL, SUPABASE_KEY)
 
-# Authenticate
-authenticator = stauth.Authenticate(
-    config['credentials'],
-    config['cookie']['name'],
-    config['cookie']['key'],
-    config['cookie']['expiry_days']
-)
+# Set app layout
+st.set_page_config(page_title="FinSight Pro", layout="wide")
+st.title("📊 FinSight Pro - Real-Time Investment Dashboard")
+st.subheader("Welcome to the future of portfolio intelligence.")
+st.markdown("<div style='text-align: center; color: grey; font-size: 16px;'>Created by <b>ABIODUN ADEBAYO</b></div>", unsafe_allow_html=True)
 
-# Show login/signup options
-auth_option = st.sidebar.radio("Choose Action", ["Login", "Create Account"])
+# Auth logic
+auth_action = st.sidebar.radio("Choose Action", ["Login", "Create Account"])
 
-if auth_option == "Create Account":
+if auth_action == "Create Account":
     st.subheader("🔐 Create Your FinSight Account")
-    new_username = st.text_input("Username")
-    new_password = st.text_input("Password", type="password")
-    confirm_password = st.text_input("Confirm Password", type="password")
+    username = st.text_input("Username")
+    password = st.text_input("Password", type="password")
+    confirm = st.text_input("Confirm Password", type="password")
 
     if st.button("Create Account"):
-        if not new_username or not new_password or not confirm_password:
-            st.warning("All fields are required.")
-        elif new_password != confirm_password:
+        if password != confirm:
             st.warning("Passwords do not match.")
-        elif new_username in config['credentials']['usernames']:
-            st.warning("Username already exists.")
+        elif username.strip() == "":
+            st.warning("Username cannot be empty.")
         else:
-            try:
-                hashed_pw = stauth.Hasher([new_password]).generate()[0]
-                config['credentials']['usernames'][new_username] = {
-                    "name": new_username,
-                    "password": hashed_pw
-                }
-
-                # Save to config.yaml
-                with open("config.yaml", "w") as file:
-                    yaml.dump(config, file)
-
+            # Check if user exists
+            res = supabase_client.table("users").select("*").eq("username", username).execute()
+            if res.data:
+                st.warning("Username already exists.")
+            else:
+                hashed_pw = bcrypt.hashpw(password.encode(), bcrypt.gensalt()).decode()
+                supabase_client.table("users").insert({"username": username, "password": hashed_pw}).execute()
                 st.success("✅ Account created! Please go to Login.")
-            except Exception as e:
-                st.error(f"Error hashing password: {e}")
 
-elif auth_option == "Login":
+elif auth_action == "Login":
     st.subheader("🔐 Login to Your FinSight Account")
-    name, auth_status, username = authenticator.login("Login", location="main")
+    username = st.text_input("Username", key="login_user")
+    password = st.text_input("Password", type="password", key="login_pw")
 
-    if auth_status:
-        authenticator.logout("Logout", "sidebar")
-        st.sidebar.success(f"Welcome, {name} 👋")
-        st.title("📊 FinSight Pro - Real-Time Investment Dashboard")
-        st.subheader("Welcome to the future of portfolio intelligence.")
-        st.markdown("<div style='text-align: center; color: grey; font-size: 16px;'>Created by <b>ABIODUN ADEBAYO</b></div>", unsafe_allow_html=True)
-        # 🚀 Add your dashboard content here
+    if st.button("Login"):
+        if username.strip() == "":
+            st.warning("Enter a username.")
+        else:
+            res = supabase_client.table("users").select("*").eq("username", username).execute()
+            user = res.data[0] if res.data else None
 
-    elif auth_status is False:
-        st.error("Incorrect username or password")
-    elif auth_status is None:
-        st.warning("Please enter your credentials")
+            if user and bcrypt.checkpw(password.encode(), user["password"].encode()):
+                st.success(f"Welcome, {username} 👋")
+                st.sidebar.success(f"Logged in as {username}")
+                st.session_state.logged_in = True
+
+                # Add your dashboard logic here 👇
+                st.markdown("### 📈 Dashboard goes here...")
+
+            else:
+                st.error("Incorrect username or password.")
