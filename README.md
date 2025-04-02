@@ -8,6 +8,11 @@ Built with Streamlit, Plotly, and multiple APIs, it provides live insights, tech
 
 ---
 
+### 🚀 Live Demo  
+👉 [Click here to explore the live app](https://fin-dashboard-djx73uumq4pjhejxsvlyj8.streamlit.app/)
+
+---
+
 ## 📸 Screenshots
 
 ### 1️⃣ Portfolio Overview
