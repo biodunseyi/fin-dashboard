@@ -87,7 +87,3 @@ Ticker,Quantity
 AAPL,10
 TSLA,5
 MSFT,8
-
-## 🚀 Live Demo
-
-[Check out FinSight Pro](https://fin-dashboard-djx73uumq4pjhejxsvlyj8.streamlit.app/)
