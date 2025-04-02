@@ -1,11 +1,11 @@
-from supabase import create_client, Client
+from supabase_py import create_client, Client
 import streamlit as st
 import bcrypt
 import os
 
 # Load Supabase credentials from Streamlit secrets
-SUPABASE_URL = st.secrets["SUPABASE_URL"]
-SUPABASE_KEY = st.secrets["SUPABASE_KEY"]
+SUPABASE_URL = st.secrets["https://uvzznramthptewlhmyoe.supabase.co"]
+SUPABASE_KEY = st.secrets["eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InV2enpucmFtdGhwdGV3bGhteW9lIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDM1NTAxNTIsImV4cCI6MjA1OTEyNjE1Mn0.npS2kkn_2jVAwHWndNJtTrVDaKno9-wTsEk1gGZIDuM"]
 
 # Initialize Supabase client
 supabase: Client = create_client(SUPABASE_URL, SUPABASE_KEY)
