@@ -9,4 +9,4 @@ requests
 streamlit-authenticator
 PyYAML
 bcrypt
-supabase-py-community
+supabase-py-community==2.0.3
