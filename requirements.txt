@@ -9,3 +9,4 @@ requests
 streamlit-authenticator
 PyYAML
 supabase-py
+supabase-py==2.0.3
