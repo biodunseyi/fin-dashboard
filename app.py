@@ -1,16 +1,16 @@
-import streamlit as st
 from supabase import create_client, Client
+import streamlit as st
 import bcrypt
 import os
 
-# Load from Streamlit Secrets
+# Load Supabase credentials from Streamlit secrets
 SUPABASE_URL = st.secrets["SUPABASE_URL"]
 SUPABASE_KEY = st.secrets["SUPABASE_KEY"]
 
 # Initialize Supabase client
-supabase_client = supabase.create_client(SUPABASE_URL, SUPABASE_KEY)
+supabase: Client = create_client(SUPABASE_URL, SUPABASE_KEY)
 
-# Set app layout
+# Set Streamlit page config
 st.set_page_config(page_title="FinSight Pro", layout="wide")
 st.title("📊 FinSight Pro - Real-Time Investment Dashboard")
 st.subheader("Welcome to the future of portfolio intelligence.")
@@ -27,18 +27,18 @@ if auth_action == "Create Account":
 
     if st.button("Create Account"):
         if password != confirm:
-            st.warning("Passwords do not match.")
+            st.warning("❌ Passwords do not match.")
         elif username.strip() == "":
-            st.warning("Username cannot be empty.")
+            st.warning("❌ Username cannot be empty.")
         else:
-            # Check if user exists
-            res = supabase_client.table("users").select("*").eq("username", username).execute()
+            # Check if user already exists
+            res = supabase.table("users").select("*").eq("username", username).execute()
             if res.data:
-                st.warning("Username already exists.")
+                st.warning("❌ Username already exists.")
             else:
                 hashed_pw = bcrypt.hashpw(password.encode(), bcrypt.gensalt()).decode()
-                supabase_client.table("users").insert({"username": username, "password": hashed_pw}).execute()
-                st.success("✅ Account created! Please go to Login.")
+                supabase.table("users").insert({"username": username, "password": hashed_pw}).execute()
+                st.success("✅ Account created! Please go to Login to access your dashboard.")
 
 elif auth_action == "Login":
     st.subheader("🔐 Login to Your FinSight Account")
@@ -47,9 +47,9 @@ elif auth_action == "Login":
 
     if st.button("Login"):
         if username.strip() == "":
-            st.warning("Enter a username.")
+            st.warning("❌ Please enter a username.")
         else:
-            res = supabase_client.table("users").select("*").eq("username", username).execute()
+            res = supabase.table("users").select("*").eq("username", username).execute()
             user = res.data[0] if res.data else None
 
             if user and bcrypt.checkpw(password.encode(), user["password"].encode()):
@@ -61,4 +61,4 @@ elif auth_action == "Login":
                 st.markdown("### 📈 Dashboard goes here...")
 
             else:
-                st.error("Incorrect username or password.")
+                st.error("❌ Incorrect username or password.")
