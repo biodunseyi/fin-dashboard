@@ -6,7 +6,7 @@ yfinance
 scipy
 textblob
 requests
-streamlit-authenticator
+
 PyYAML
 bcrypt
-supabase-py-community==2.0.3
+supabase-py==0.0.11

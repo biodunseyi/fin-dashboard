@@ -1,4 +1,4 @@
-from supabase import create_client, Client
+from supabase_py import create_client, Client
 import streamlit as st
 import bcrypt
 import os
