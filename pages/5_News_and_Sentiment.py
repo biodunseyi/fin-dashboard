@@ -1,7 +1,6 @@
 import streamlit as st
 import requests
 from textblob import TextBlob
-import pandas as pd
 
 st.title("📰 News & Sentiment")
 st.markdown("Get the latest news and sentiment analysis for any company, stock, or keyword.")
@@ -12,10 +11,15 @@ query = st.text_input("Search for stock or keyword (e.g., AAPL, Bitcoin, Microso
 
 if query:
     st.info(f"🔍 Fetching news for: {query}")
-    url = f"https://newsdata.io/api/1/news?apikey={API_KEY}&q={query}&language=en&category=business"
+    params = {
+        "apikey": API_KEY,
+        "q": query,
+        "language": "en",
+        "category": "business",
+    }
 
     try:
-        response = requests.get(url)
+        response = requests.get("https://newsdata.io/api/1/news", params=params)
         data = response.json()
 
         if "results" not in data:
